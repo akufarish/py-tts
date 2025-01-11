@@ -27,17 +27,24 @@
             required
           ></textarea>
           <div class="flex mx-12 justify-between gap-2">
-            <button id="play-audio" type="submit" class="w-12 h-12 rounded-full bg-indigo-500">
+            <button
+              id="play-audio"
+              type="submit"
+              class="w-12 h-12 rounded-full bg-indigo-500"
+            >
               <i class="bi bi-play text-white"></i>
             </button>
-            <button
-              class="download w-12 h-12 rounded-full bg-indigo-500"
+            <div
+              class="download flex justify-center items-center w-12 h-12 rounded-full bg-indigo-500"
               id="download"
             >
-              <i class="bi w-12 h-12 bi-download text-white"></i>
-            </button>
+              <i
+                class="bi w-12 h-12 bi-download text-white flex justify-center items-center"
+              ></i>
+            </div>
           </div>
         </form>
+
         <div class="flex justify-center items-center mt-12">
           <audio id="audio-player">
             <source id="audio-source" src="" type="audio/mpeg" />
@@ -53,6 +60,32 @@
       const audioElement = document.querySelector("audio");
       const downloadBtn = document.getElementById("download");
       const playAudioBtn = document.getElementById("play-audio");
+      const textArea = document.getElementById("text");
+
+      downloadBtn.addEventListener("click", async () => {
+        const form = new FormData();
+
+        form.append("text", textArea.value);
+
+        console.log(form.get("text"));
+
+        const response = await fetch("/download", {
+          method: "POST",
+          body: form,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "tts.mp3";
+          link.click();
+          URL.revokeObjectURL(url);
+        } else {
+          console.error("Failed to download audio.");
+        }
+      });
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -71,15 +104,6 @@
           audioElement.load();
           audioElement.play();
         }
-      });
-
-      downloadBtn.addEventListener("click", async () => {
-        const formData = new FormData(form);
-
-        const response = await fetch("/download", {
-          method: "POST",
-          body: formData,
-        });
       });
     </script>
   </body>
