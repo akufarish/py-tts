@@ -24,3 +24,6 @@ def download_tts():
         tts.write_to_fp(tts_fp)
         tts_fp.seek(0)
         return send_file(tts_fp, mimetype='audio/mpeg', as_attachment=True, download_name='tts.mp3')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True, port=5100)
