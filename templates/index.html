@@ -3,13 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>TTS Audio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
   </head>
   <body>
-    <p>Simple Text to Speech</p>
-    <form method="post" action="/">
-      <input type="text" name="text" id="text" />
-      <button type="submit">Create</button>
-    </form>
+    <div class="p-6 flex justify-center items-center min-h-screen">
+      <div class="flex gap-12 flex-col">
+        <h3 class="text-center text-xl font-bold text-2xl">Text To Speech</h3>
+        <form
+          id="tts-form"
+          method="POST"
+          class="relative flex w-[900px] h-[400px] flex-col bg-white rounded-md shadow-md"
+        >
+          <textarea
+            type="text"
+            id="text"
+            name="text"
+            class="w-full h-[300px] rounded-md focus:outline-none p-2"
+            required
+          ></textarea>
+          <div class="flex mx-12 justify-between gap-2">
+            <button id="play-audio" type="submit" class="w-12 h-12 rounded-full bg-indigo-500">
+              <i class="bi bi-play text-white"></i>
+            </button>
+            <button
+              class="download w-12 h-12 rounded-full bg-indigo-500"
+              id="download"
+            >
+              <i class="bi w-12 h-12 bi-download text-white"></i>
+            </button>
+          </div>
+        </form>
+        <div class="flex justify-center items-center mt-12">
+          <audio id="audio-player">
+            <source id="audio-source" src="" type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("tts-form");
+      const audioSource = document.getElementById("audio-source");
+      const audioElement = document.querySelector("audio");
+      const downloadBtn = document.getElementById("download");
+      const playAudioBtn = document.getElementById("play-audio");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        const response = await fetch("/", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          console.log(url);
+          audioSource.src = url;
+          audioElement.load();
+          audioElement.play();
+        }
+      });
+
+      downloadBtn.addEventListener("click", async () => {
+        const formData = new FormData(form);
+
+        const response = await fetch("/download", {
+          method: "POST",
+          body: formData,
+        });
+      });
+    </script>
   </body>
 </html>
